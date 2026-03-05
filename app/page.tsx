@@ -5,6 +5,7 @@ import { CreateTokenForm } from "@/components/CreateTokenForm";
 import { PendingDeliveries } from "@/components/PendingDeliveries";
 import { TokenList } from "@/components/TokenList";
 import { WalletTokenBalances } from "@/components/WalletTokenBalances";
+import { PurchasedTokens } from "@/components/PurchasedTokens";
 
 export default function Home() {
   return (
@@ -22,6 +23,9 @@ export default function Home() {
         </div>
         <div className="mb-8">
           <WalletTokenBalances />
+        </div>
+        <div className="mb-8">
+          <PurchasedTokens />
         </div>
         <div className="mb-8">
           <PendingDeliveries />

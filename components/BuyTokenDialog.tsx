@@ -99,6 +99,7 @@ export function BuyTokenDialog({
       setOpen(false);
       setQuantity("");
       onSuccess?.();
+      window.dispatchEvent(new Event("token-list-refresh"));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Purchase failed");
     } finally {

@@ -8,9 +8,38 @@ export async function GET(request: NextRequest) {
     await connectDB();
     const { searchParams } = new URL(request.url);
     const owner = searchParams.get("owner");
+    const buyer = searchParams.get("buyer");
+    
+    // Si se especifica buyer, devolver todas las compras del comprador (pending + completed)
+    if (buyer) {
+      const buyerPurchases = await PendingPurchase.find({
+        buyerAddress: buyer,
+        status: { $in: ["pending", "completed"] },
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+
+      const mints = [...new Set(buyerPurchases.map((p) => p.mintAddress))];
+      const tokens = await Token.find({ mintAddress: { $in: mints } }).lean();
+      const tokenMap = new Map(tokens.map((t) => [t.mintAddress, t]));
+
+      const purchasesWithToken = buyerPurchases.map((p) => {
+        const t = tokenMap.get(p.mintAddress);
+        return {
+          ...p,
+          decimals: t?.decimals ?? 0,
+          symbol: t?.symbol ?? "",
+          name: t?.name ?? "",
+        };
+      });
+
+      return NextResponse.json(purchasesWithToken);
+    }
+    
+    // Comportamiento original: compras pendientes para el owner
     if (!owner) {
       return NextResponse.json(
-        { error: "Missing owner query" },
+        { error: "Missing owner or buyer query" },
         { status: 400 }
       );
     }
